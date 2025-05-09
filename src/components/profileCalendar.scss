@@ -4,6 +4,9 @@
   gap: 20px;
   padding: 20px;
   background-color: #f9f9f9;
+  overflow-y: auto;  // scrollbar 
+  height: 100vh;
+
 }
 
 .profile-section {
