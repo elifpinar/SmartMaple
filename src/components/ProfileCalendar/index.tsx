@@ -24,7 +24,7 @@ const ProfileCalendar = () => {
     dispatch(setProfile() as any);
     dispatch(fetchSchedule() as any);
   }, []);
-//console.log("schedule içeriği",schedule)
+console.log("schedule içeriği",schedule)
   return (
     <div className="profile-calendar-container">
       <ProfileCard profile={auth} />

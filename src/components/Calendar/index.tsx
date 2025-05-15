@@ -19,10 +19,13 @@ import "../profileCalendar.scss";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 
 import EventModal from "../EventModal";
+import helpers from "../../utils/helpers";
 
 dayjs.extend(utc);
+dayjs.extend(customParseFormat);
 dayjs.extend(isSameOrBefore);
 
 type CalendarContainerProps = {
@@ -78,6 +81,7 @@ const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
 
   const [events, setEvents] = useState<EventInput[]>([]);
   const [highlightedDates, setHighlightedDates] = useState<string[]>([]);
+  const [newHighlightedDates, setNewHighlightedDates] = useState<any[]>([]);
   const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
   const [initialDate, setInitialDate] = useState<Date>(
     dayjs(schedule?.scheduleStartDate).toDate()
@@ -185,15 +189,42 @@ const className = schedule?.shifts?.findIndex(
     works.push(work);
   }
 
+  if(selectedStaffId){
+    //debugger;
+  }
     // Seçilen personelin izinli günlerini işaretleyin
   const offDays = schedule?.staffs?.find(
     (staff) => staff.id === selectedStaffId
   )?.offDays;
+
+  const pairList = schedule?.staffs?.find(
+    (staff) => staff.id === selectedStaffId
+  )?.pairList;
+
+
+
+
   const dates = getDatesBetween(
     dayjs(schedule.scheduleStartDate).format("DD.MM.YYYY"),
     dayjs(schedule.scheduleEndDate).format("DD.MM.YYYY")
   );
   let highlightedDates: string[] = [];
+
+  let newHighlightedDatess: string[] = [];
+
+  pairList?.forEach(pairStaff => {
+    const pairRengi = helpers.getColorFromId(pairStaff.staffId);
+    const pairDates = getDatesBetween(
+    dayjs(pairStaff.startDate,'DD.MM.YYYY'),
+    dayjs(pairStaff.endDate,'DD.MM.YYYY')
+    
+  );
+  const highlightedDate = {
+      pairRengi,
+      pairDates
+    }
+    newHighlightedDatess.push(highlightedDate);
+  })
 
   dates.forEach((date) => {
     const transformedDate = dayjs(date, "DD-MM-YYYY").format("DD.MM.YYYY");
@@ -201,6 +232,7 @@ const className = schedule?.shifts?.findIndex(
   });
 
   setHighlightedDates(highlightedDates);
+  setNewHighlightedDates(newHighlightedDatess);
   setEvents(works);
 };
 
@@ -210,6 +242,7 @@ const className = schedule?.shifts?.findIndex(
   }, [schedule]);
 
   useEffect(() => {
+    //debugger;
     generateStaffBasedCalendar();
   }, [selectedStaffId]);
 
@@ -227,6 +260,7 @@ const className = schedule?.shifts?.findIndex(
         <div className="staff-list">
           {schedule?.staffs?.map((staff: any) => (
             <div
+            
               key={staff.id}
               onClick={() => setSelectedStaffId(staff.id)}
               className={`staff ${
@@ -249,6 +283,7 @@ const className = schedule?.shifts?.findIndex(
         <EventModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} eventDetails={selectedEvent} />
       )}
         </div>
+        {(Object.entries(schedule).length !== 0 && events.length !== 0) && 
         <FullCalendar
           ref={calendarRef}
           locale={auth.language}
@@ -304,19 +339,51 @@ const className = schedule?.shifts?.findIndex(
             if (endDiff < 0 && endDiff > -32) nextButton.disabled = true;
             else nextButton.disabled = false;
           }}
-          dayCellContent={({ date }) => {
+          dayCellDidMount={(arg) => {
+                        //debugger;
+
+    // burada her günün hücresi var
+    const cellDateStr = arg.date.toISOString().split("T")[0]; // YYYY-MM-DD
+
+    const hasEvent = events.some((event) => event.start?.startsWith(cellDateStr));
+
+    if (hasEvent) {
+     // debugger;
+      // event olan günleri yeşil yap örneğin
+      arg.el.style.backgroundColor = "#e6ffed";
+    }
+  }}
+          dayCellContent={({ date,view }) => {
+            //const selectedStaff = schedule.staffs.find(staff => staff.id === selectedStaffId);
             const found = validDates().includes(
               dayjs(date).format("YYYY-MM-DD")
             );
+            if(dayjs(date).format("DD-MM-YYYY") == '06-10-2025'){
+              debugger;
+            }
+            console.log(newHighlightedDates);
+            let rengim = "";
+            newHighlightedDates.forEach(x => {
+              x.pairDates.forEach(y => {
+                //debugger;
+                if(y == dayjs(date).format("DD-MM-YYYY")){
+                  rengim = x.pairRengi;
+                }
+              })
+            })
+            if(rengim){
+              debugger;
+              console.log("Rengim : "+rengim);
+            }
+              
             const isHighlighted = highlightedDates.includes(
               dayjs(date).format("DD-MM-YYYY")
             );
 
             return (
               <div
-                className={`${found ? "" : "date-range-disabled"} ${
-                  isHighlighted ? "highlighted-date-orange" : ""
-                } highlightedPair`}
+                className={""}
+                style={{borderBottomColor:rengim , borderBottomStyle:'solid',borderBottomWidth:rengim ? '4px':'0px' }}
               >
                 {dayjs(date).date()}
                 
@@ -325,6 +392,8 @@ const className = schedule?.shifts?.findIndex(
             );
           }}
         />
+        }
+        
       </div>
       
     </div>

@@ -23,9 +23,24 @@ function handleServerErrors(err: ErrorInstance): ErrorBE {
 
 const capitalize = (s: string): string => s.charAt(0).toUpperCase() + s.slice(1);
 
+//id ye göre sabit renk atama 
+function getColorFromId(id: string): string {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = id.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const hue = Math.abs(hash) % 360;
+  return `hsl(${hue}, 70%, 60%)`; // pastel renkler
+}
+
+
 const helpers = {
   handleServerErrors,
   capitalize,
+  getColorFromId,
 };
+
+
+
 
 export default helpers;
