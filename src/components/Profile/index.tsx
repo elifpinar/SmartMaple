@@ -9,7 +9,7 @@ type ProfileCardProps = {
 const ProfileCard = ({ profile }: ProfileCardProps) => {
   console.log("profile:", JSON.stringify(profile, null, 2));
 
-  // Eğer profile varsa, önce oradan al; yoksa AuthSession'dan
+  // Eğer profil varsa, önce oradan al; yoksa AuthSession'dan
   const roles = profile?.role
     ? profile.role
     : AuthSession.getRoles();

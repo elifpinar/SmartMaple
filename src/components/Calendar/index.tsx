@@ -190,7 +190,7 @@ const className = schedule?.shifts?.findIndex(
   }
 
   if(selectedStaffId){
-    //debugger;
+    
   }
     // Seçilen personelin izinli günlerini işaretleyin
   const offDays = schedule?.staffs?.find(
@@ -243,12 +243,10 @@ const className = schedule?.shifts?.findIndex(
   }, [schedule]);
 
   useEffect(() => {
-    //debugger;
     generateStaffBasedCalendar();
     //setInitialDate(dayjs("02.03.2025",'DD.MM.YYYY').format('YYYY-MM-DD'));
 
     if(selectedStaffId){
-          // debugger;
 const staffAssignments = schedule.assignments.filter(x => x.staffId === selectedStaffId);
     const futureDates = staffAssignments.filter(item => dayjs(item.shiftStart).isAfter(dayjs()));
 
@@ -344,14 +342,8 @@ const staffAssignments = schedule.assignments.filter(x => x.staffId === selected
 
             }
               //setInitialDate(calendarRef?.current?.getApi().getDate());
-              //setInitialDate("2025-01-01");
-
-              //setInitialDate("02-02-2025");
-//debugger;
               
-
-          console.log("tarihhh",calendarRef?.current?.getApi().getDate())
-              
+                            
             const startDiff = dayjs(info.start)
               .utc()
               .diff(
@@ -363,7 +355,7 @@ const staffAssignments = schedule.assignments.filter(x => x.staffId === selected
               "days"
             );
             if (startDiff < 0 && startDiff > -35){
-              debugger;
+              
               prevButton.disabled = true;
             } 
             else{
@@ -371,7 +363,6 @@ const staffAssignments = schedule.assignments.filter(x => x.staffId === selected
             } 
 
             if (endDiff < 0 && endDiff > -32){
-              debugger;
               nextButton.disabled = true;
             } 
             else{
@@ -379,46 +370,27 @@ const staffAssignments = schedule.assignments.filter(x => x.staffId === selected
             } 
           }}
           dayCellDidMount={(arg) => {
-                        //debugger;
 
-    // burada her günün hücresi var
-    const cellDateStr = arg.date.toISOString().split("T")[0]; // YYYY-MM-DD
+  
 
-    const hasEvent = events.some((event) => event.start?.startsWith(cellDateStr));
-
-    if (hasEvent) {
-     // debugger;
-      // event olan günleri yeşil yap örneğin
-      arg.el.style.backgroundColor = "#e6ffed";
-    }
+    
   }}
-          dayCellContent={({ date,view }) => {
+          dayCellContent={({ date }) => {
             //const selectedStaff = schedule.staffs.find(staff => staff.id === selectedStaffId);
-            const found = validDates().includes(
-              dayjs(date).format("YYYY-MM-DD")
-            );
-            if(dayjs(date).format("DD-MM-YYYY") == '06-10-2025'){
-              // debugger;
-            }
-            console.log(newHighlightedDates);
+            
+        
             let rengim = "";
             newHighlightedDates.forEach(x => {
               x.pairDates.forEach(y => {
-                //debugger;
+                
                 if(y == dayjs(date).format("DD-MM-YYYY")){
                   rengim = x.pairRengi;
                 }
               })
             })
-            if(rengim){
-              // debugger;
-              console.log("Rengim : "+rengim);
-            }
+            
               
-            const isHighlighted = highlightedDates.includes(
-              dayjs(date).format("DD-MM-YYYY")
-            );
-
+          
             return (
               <div
                 className={""}
