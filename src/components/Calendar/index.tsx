@@ -238,12 +238,32 @@ const className = schedule?.shifts?.findIndex(
 
   useEffect(() => {
     setSelectedStaffId(schedule?.staffs?.[0]?.id);
+    
     generateStaffBasedCalendar();
   }, [schedule]);
 
   useEffect(() => {
     //debugger;
     generateStaffBasedCalendar();
+    //setInitialDate(dayjs("02.03.2025",'DD.MM.YYYY').format('YYYY-MM-DD'));
+
+    if(selectedStaffId){
+          // debugger;
+const staffAssignments = schedule.assignments.filter(x => x.staffId === selectedStaffId);
+    const futureDates = staffAssignments.filter(item => dayjs(item.shiftStart).isAfter(dayjs()));
+
+    if(futureDates.length > 0){
+      const earliestFuture = futureDates.reduce((min, item) =>
+        dayjs(item.shiftStart).isBefore(dayjs(min.date)) ? item : min
+      );
+      setInitialDate(earliestFuture.shiftStart);
+    }
+    }
+    
+
+
+    
+
   }, [selectedStaffId]);
 
   const RenderEventContent = ({ eventInfo }: any) => {
@@ -320,9 +340,18 @@ const className = schedule?.shifts?.findIndex(
               !dayjs(schedule?.scheduleStartDate).isSame(
                 calendarRef?.current?.getApi().getDate()
               )
-            )
-              setInitialDate(calendarRef?.current?.getApi().getDate());
+            ){
 
+            }
+              //setInitialDate(calendarRef?.current?.getApi().getDate());
+              //setInitialDate("2025-01-01");
+
+              //setInitialDate("02-02-2025");
+//debugger;
+              
+
+          console.log("tarihhh",calendarRef?.current?.getApi().getDate())
+              
             const startDiff = dayjs(info.start)
               .utc()
               .diff(
@@ -333,11 +362,21 @@ const className = schedule?.shifts?.findIndex(
               info.end,
               "days"
             );
-            if (startDiff < 0 && startDiff > -35) prevButton.disabled = true;
-            else prevButton.disabled = false;
+            if (startDiff < 0 && startDiff > -35){
+              debugger;
+              prevButton.disabled = true;
+            } 
+            else{
+              prevButton.disabled = false;
+            } 
 
-            if (endDiff < 0 && endDiff > -32) nextButton.disabled = true;
-            else nextButton.disabled = false;
+            if (endDiff < 0 && endDiff > -32){
+              debugger;
+              nextButton.disabled = true;
+            } 
+            else{
+              nextButton.disabled = false;
+            } 
           }}
           dayCellDidMount={(arg) => {
                         //debugger;
@@ -359,7 +398,7 @@ const className = schedule?.shifts?.findIndex(
               dayjs(date).format("YYYY-MM-DD")
             );
             if(dayjs(date).format("DD-MM-YYYY") == '06-10-2025'){
-              debugger;
+              // debugger;
             }
             console.log(newHighlightedDates);
             let rengim = "";
@@ -372,7 +411,7 @@ const className = schedule?.shifts?.findIndex(
               })
             })
             if(rengim){
-              debugger;
+              // debugger;
               console.log("Rengim : "+rengim);
             }
               
