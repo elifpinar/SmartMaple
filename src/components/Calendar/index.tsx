@@ -260,7 +260,7 @@ const className = schedule?.shifts?.findIndex(
         <div className="staff-list">
           {schedule?.staffs?.map((staff: any) => (
             <div
-            
+            style={{color:helpers.getColorFromId(staff.id)}}
               key={staff.id}
               onClick={() => setSelectedStaffId(staff.id)}
               className={`staff ${
@@ -279,7 +279,7 @@ const className = schedule?.shifts?.findIndex(
             </div>
           ))}
           {/* Popup (Modal) */}
-      {isModalOpen && selectedEvent && (
+      {(isModalOpen && selectedEvent) && (
         <EventModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} eventDetails={selectedEvent} />
       )}
         </div>

@@ -1,4 +1,5 @@
 // components/EventModal.tsx
+import "./eventModal.scss";
 import React from "react";
 type EventModalProps = {
   isOpen: boolean;
