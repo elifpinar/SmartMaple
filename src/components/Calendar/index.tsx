@@ -20,6 +20,8 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 
+import EventModal from "../EventModal";
+
 dayjs.extend(utc);
 dayjs.extend(isSameOrBefore);
 
@@ -81,6 +83,28 @@ const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
     dayjs(schedule?.scheduleStartDate).toDate()
   );
 
+  const [isModalOpen, setIsModalOpen] = useState(false); // Modal açma durumu
+  const [selectedEvent, setSelectedEvent] = useState<any>(null); // Seçilen etkinlik bilgisi
+  
+// eventClick olayını tanımlıyoruz
+  const handleEventClick = (info: any) => {
+    // event lar assignment lar. Biz schedule içinden staff ları çekip name lerini alıyoruz.
+    const event = info.event;
+    const selectedStaff = schedule.staffs.find(staff => staff.id === event.extendedProps.staffId);
+    const selectedShift = schedule.shifts.find(shifts => shifts.id === event.extendedProps.shiftId);
+    const eventDetails = {
+      staffName: selectedStaff.name,
+      shiftName: selectedShift.name,
+      date: event.startStr,
+      startTime: selectedShift.shiftStart,
+      endTime: selectedShift.shiftEnd,
+    };
+    setSelectedEvent(eventDetails); // Etkinlik bilgilerini modal'a gönderiyoruz
+    setIsModalOpen(true); // Modal'ı açıyoruz
+  };
+
+
+
   const getPlugins = () => {
     const plugins = [dayGridPlugin];
 
@@ -131,49 +155,54 @@ const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
   const generateStaffBasedCalendar = () => {
     const works: EventInput[] = [];
 
-    for (let i = 0; i < schedule?.assignments?.length; i++) {
-      const className = schedule?.shifts?.findIndex(
-        (shift) => shift.id === schedule?.assignments?.[i]?.shiftId
-      );
+    // Seçilen personelin etkinliklerini filtrele
+  for (let i = 0; i < schedule?.assignments?.length; i++) {
+    const assignment = schedule?.assignments[i];
+    if (assignment.staffId !== selectedStaffId) continue; // Burada sadece seçili personelin etkinliklerini alıyoruz
 
-      const assignmentDate = dayjs
-        .utc(schedule?.assignments?.[i]?.shiftStart)
-        .format("YYYY-MM-DD");
-      const isValidDate = validDates().includes(assignmentDate);
-
-      const work = {
-        id: schedule?.assignments?.[i]?.id,
-        title: getShiftById(schedule?.assignments?.[i]?.shiftId)?.name,
-        duration: "01:00",
-        date: assignmentDate,
-        staffId: schedule?.assignments?.[i]?.staffId,
-        shiftId: schedule?.assignments?.[i]?.shiftId,
-        className: `event ${classes[className]} ${
-          getAssigmentById(schedule?.assignments?.[i]?.id)?.isUpdated
-            ? "highlight"
-            : ""
-        } ${!isValidDate ? "invalid-date" : ""}`,
-      };
-      works.push(work);
-    }
-
-    const offDays = schedule?.staffs?.find(
-      (staff) => staff.id === selectedStaffId
-    )?.offDays;
-    const dates = getDatesBetween(
-      dayjs(schedule.scheduleStartDate).format("DD.MM.YYYY"),
-      dayjs(schedule.scheduleEndDate).format("DD.MM.YYYY")
+const className = schedule?.shifts?.findIndex(
+      (shift) => shift.id === assignment?.shiftId
     );
-    let highlightedDates: string[] = [];
 
-    dates.forEach((date) => {
-      const transformedDate = dayjs(date, "DD-MM-YYYY").format("DD.MM.YYYY");
-      if (offDays?.includes(transformedDate)) highlightedDates.push(date);
-    });
+        const assignmentDate = dayjs
+      .utc(assignment?.shiftStart)
+      .format("YYYY-MM-DD");
+    const isValidDate = validDates().includes(assignmentDate);
 
-    setHighlightedDates(highlightedDates);
-    setEvents(works);
-  };
+       const work = {
+      id: assignment?.id,
+      title: getShiftById(assignment?.shiftId)?.name,
+      duration: "01:00",
+      date: assignmentDate,
+      staffId: assignment?.staffId,
+      shiftId: assignment?.shiftId,
+      className: `event ${classes[className]} ${
+        getAssigmentById(assignment?.id)?.isUpdated
+          ? "highlight"
+          : ""
+      } ${!isValidDate ? "invalid-date" : ""}`,
+    };
+    works.push(work);
+  }
+
+    // Seçilen personelin izinli günlerini işaretleyin
+  const offDays = schedule?.staffs?.find(
+    (staff) => staff.id === selectedStaffId
+  )?.offDays;
+  const dates = getDatesBetween(
+    dayjs(schedule.scheduleStartDate).format("DD.MM.YYYY"),
+    dayjs(schedule.scheduleEndDate).format("DD.MM.YYYY")
+  );
+  let highlightedDates: string[] = [];
+
+  dates.forEach((date) => {
+    const transformedDate = dayjs(date, "DD-MM-YYYY").format("DD.MM.YYYY");
+    if (offDays?.includes(transformedDate)) highlightedDates.push(date);
+  });
+
+  setHighlightedDates(highlightedDates);
+  setEvents(works);
+};
 
   useEffect(() => {
     setSelectedStaffId(schedule?.staffs?.[0]?.id);
@@ -215,6 +244,10 @@ const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
               <span>{staff.name}</span>
             </div>
           ))}
+          {/* Popup (Modal) */}
+      {isModalOpen && selectedEvent && (
+        <EventModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} eventDetails={selectedEvent} />
+      )}
         </div>
         <FullCalendar
           ref={calendarRef}
@@ -223,19 +256,22 @@ const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
           contentHeight={400}
           handleWindowResize={true}
           selectable={true}
-          editable={true}
+          editable={false}  // drag and drop özelliğini devre dışı bırakmak için false
           eventOverlap={true}
           eventDurationEditable={false}
           initialView="dayGridMonth"
           initialDate={initialDate}
           events={events}
+
           firstDay={1}
           dayMaxEventRows={4}
           fixedWeekCount={true}
           showNonCurrentDates={true}
-          eventContent={(eventInfo: any) => (
-            <RenderEventContent eventInfo={eventInfo} />
-          )}
+           eventContent={(eventInfo: any) => <RenderEventContent eventInfo={eventInfo} />}
+          eventClick={handleEventClick} // eventClick olayını burada çağırıyoruz
+        
+
+          
           datesSet={(info: any) => {
             const prevButton = document.querySelector(
               ".fc-prev-button"
@@ -283,11 +319,14 @@ const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
                 } highlightedPair`}
               >
                 {dayjs(date).date()}
+                
               </div>
+              
             );
           }}
         />
       </div>
+      
     </div>
   );
 };
