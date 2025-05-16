@@ -294,7 +294,7 @@ const staffAssignments = schedule.assignments.filter(x => x.staffId === selected
           ref={calendarRef}
           locale={auth.language}
           plugins={getPlugins()}
-          contentHeight={400}
+          contentHeight={500}
           handleWindowResize={true}
           selectable={true}
           editable={false}  // drag and drop özelliğini devre dışı bırakmak için false
@@ -303,7 +303,6 @@ const staffAssignments = schedule.assignments.filter(x => x.staffId === selected
           initialView="dayGridMonth"
           initialDate={initialDate}
           events={events}
-
           firstDay={1}
           dayMaxEventRows={4}
           fixedWeekCount={true}
