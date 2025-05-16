@@ -124,9 +124,6 @@ const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
     return schedule?.assignments?.find((assign) => id === assign.id);
   };
 
-  const getStaffById = (id: string) => {
-    return schedule?.staffs?.find((staff) => id === staff.id);
-  };
 
   const validDates = () => {
     const dates = [];
@@ -189,10 +186,7 @@ const className = schedule?.shifts?.findIndex(
     works.push(work);
   }
 
-  if(selectedStaffId){
-    
-  }
-    // Seçilen personelin izinli günlerini işaretleyin
+    // Seçilen personelin izinli günleri
   const offDays = schedule?.staffs?.find(
     (staff) => staff.id === selectedStaffId
   )?.offDays;
@@ -200,9 +194,6 @@ const className = schedule?.shifts?.findIndex(
   const pairList = schedule?.staffs?.find(
     (staff) => staff.id === selectedStaffId
   )?.pairList;
-
-
-
 
   const dates = getDatesBetween(
     dayjs(schedule.scheduleStartDate).format("DD.MM.YYYY"),
@@ -257,9 +248,6 @@ const staffAssignments = schedule.assignments.filter(x => x.staffId === selected
       setInitialDate(earliestFuture.shiftStart);
     }
     }
-    
-
-
     
 
   }, [selectedStaffId]);
@@ -320,11 +308,9 @@ const staffAssignments = schedule.assignments.filter(x => x.staffId === selected
           dayMaxEventRows={4}
           fixedWeekCount={true}
           showNonCurrentDates={true}
-           eventContent={(eventInfo: any) => <RenderEventContent eventInfo={eventInfo} />}
+          eventContent={(eventInfo: any) => <RenderEventContent eventInfo={eventInfo} />}
           eventClick={handleEventClick} // eventClick olayını burada çağırıyoruz
         
-
-          
           datesSet={(info: any) => {
             const prevButton = document.querySelector(
               ".fc-prev-button"
@@ -338,9 +324,8 @@ const staffAssignments = schedule.assignments.filter(x => x.staffId === selected
               !dayjs(schedule?.scheduleStartDate).isSame(
                 calendarRef?.current?.getApi().getDate()
               )
-            ){
-
-            }
+            ){ }
+            
               //setInitialDate(calendarRef?.current?.getApi().getDate());
               
                             
@@ -369,16 +354,10 @@ const staffAssignments = schedule.assignments.filter(x => x.staffId === selected
               nextButton.disabled = false;
             } 
           }}
-          dayCellDidMount={(arg) => {
-
-  
-
-    
-  }}
+          dayCellDidMount={(arg) => { }}
           dayCellContent={({ date }) => {
             //const selectedStaff = schedule.staffs.find(staff => staff.id === selectedStaffId);
             
-        
             let rengim = "";
             newHighlightedDates.forEach(x => {
               x.pairDates.forEach(y => {
@@ -389,15 +368,12 @@ const staffAssignments = schedule.assignments.filter(x => x.staffId === selected
               })
             })
             
-              
-          
             return (
-              <div
-                className={""}
-                style={{borderBottomColor:rengim , borderBottomStyle:'solid',borderBottomWidth:rengim ? '4px':'0px' }}
-              >
+              <div 
+               className={""}
+               style={{borderBottomColor:rengim , borderBottomStyle:'solid',borderBottomWidth:rengim ? '4px':'0px' }}>
+
                 {dayjs(date).date()}
-                
               </div>
               
             );
